@@ -43,7 +43,7 @@ $password = read-host "user's password: " -AsSecureString
 [string]$portquery_path=".\PortQry.exe"
 
 #$password = Read-Host -Prompt "Enter your password" -AsSecureString
-$plainTextPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
+$script:plainTextPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
 
 
 $port = 389
@@ -57,6 +57,7 @@ if (-not $domainName) {
   if (!(Get-Item -Path $portquery_path -ErrorAction SilentlyContinue)) {
    write-host "porqry.exe does not exist, please specify portqry.exe location"
    $portquery_path = read-host "enter valid path for PortQry.exe"
+  
   }
 }
 
@@ -66,7 +67,7 @@ if (-not $domainName) {
 Function check-server-port-status {
   param(
    [array]$servers,
-   [int]$port =38
+   [int]$port =389
 
   )
   $dc_udp_status =@()
@@ -113,7 +114,8 @@ Function get-sitename-subnet-info {
     try{
     $domain = [System.DirectoryServices.ActiveDirectory.domain]::Getdomain($context)
     } catch{  
-      
+        Write-Host $_
+        break
     } 
     # Get the sites in the domain
     $sites = $domain.Forest.Sites
